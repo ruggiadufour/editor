@@ -62,6 +62,7 @@ const handleDrop = (e: DragEvent) => {
 
   const method = position === "top" ? "unshift" : "push";
   model.value.content[method](elementDragging.value);
+  emit("on-click", elementDragging.value);
 };
 
 const handleDragOver = (e: DragEvent) => {
@@ -155,7 +156,7 @@ const handleCreateComponent = () => {
 
 <template>
   <div
-    class="relative text-center"
+    class="relative inline-block"
     :style="{ width: model.styles.width, height: model.styles.height }"
   >
     <div

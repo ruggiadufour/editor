@@ -35,7 +35,7 @@ interface TElementImage extends TElementBase {
 }
 
 interface TElementGeneric extends TElementBase {
-  type: 'paragraph' | 'heading' | 'container'
+  type: 'paragraph' | 'heading' | 'container' | 'divider'
   properties: HTMLAttributes
 }
 

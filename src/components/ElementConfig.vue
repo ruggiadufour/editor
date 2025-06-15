@@ -70,12 +70,36 @@ const handleRemoveProp = (prop: string) => {
       </div>
 
       <div v-if="element.type === 'link'">
-        <label class="block text-sm font-medium text-gray-700">Href</label>
+        <label class="block text-sm font-medium text-gray-700">Source (URL)</label>
         <input
           v-model="element.properties.href"
           type="text"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         />
+      </div>
+
+      <div v-if="element.type === 'image'">
+        <label class="block text-sm font-medium text-gray-700">Source (URL)</label>
+        <input
+          v-model="element.properties.src"
+          type="text"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
+
+      <div v-if="element.type === 'heading'">
+        <label class="block text-sm font-medium text-gray-700">Type</label>
+        <select
+          v-model="element.meta.tag"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        >
+          <option value="h1">Title H1</option>
+          <option value="h2">Title H2</option>
+          <option value="h3">Title H3</option>
+          <option value="h4">Title H4</option>
+          <option value="h5">Title H5</option>
+          <option value="h6">Title H6</option>
+        </select>
       </div>
 
       <div>
@@ -204,6 +228,10 @@ const handleRemoveProp = (prop: string) => {
         >
           <option value="flex">Flex</option>
           <option value="grid">Grid</option>
+          <option value="block">Block</option>
+          <option value="inline">Inline</option>
+          <option value="inline-block">Inline block</option>
+          <option value="none">None</option>
         </select>
       </div>
 
@@ -219,7 +247,7 @@ const handleRemoveProp = (prop: string) => {
         </select>
       </div>
 
-      <div>
+      <div v-if="['flex', 'grid'].includes(element.styles.display || '')">
         <label class="block text-sm font-medium text-gray-700">Gap</label>
         <input
           v-model="element.styles.gap"
@@ -276,9 +304,9 @@ const handleRemoveProp = (prop: string) => {
           v-model="element.styles.gridTemplateColumns"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         >
-          <option value="1fr">1 column</option>
+          <option value="repeat(1, 1fr)">1 column</option>
           <option value="repeat(2, 1fr)">2 columns</option>
-          <option value="3fr">3 columns</option>
+          <option value="repeat(3, 1fr)">3 columns</option>
           <option value="repeat(4, 1fr)">4 columns</option>
           <option value="repeat(5, 1fr)">5 columns</option>
           <option value="repeat(6, 1fr)">6 columns</option>

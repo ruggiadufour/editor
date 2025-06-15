@@ -40,9 +40,11 @@ const elementList: TElement[] = [
       href: location.href,
     },
     styles: {
+      width: "fit-content",
       textDecoration: "underline",
       color: "blue",
-      padding: "1rem",
+      padding: "0.5rem",
+      textAlign: "start",
       display: "inline-block",
     },
   },
@@ -56,7 +58,10 @@ const elementList: TElement[] = [
       props: {},
     },
     properties: {},
-    styles: {},
+    styles: {
+      width: "100%",
+      textAlign: "start",
+    },
   },
   {
     id: 3,
@@ -69,7 +74,10 @@ const elementList: TElement[] = [
       props: {},
     },
     properties: {},
-    styles: {},
+    styles: {
+      width: "100%",
+      textAlign: "start",
+    },
   },
   {
     id: 4,
@@ -85,7 +93,7 @@ const elementList: TElement[] = [
       backgroundColor: "lightblue",
       color: "black",
       padding: "10px",
-      width: "auto",
+      width: "fit-content",
     },
   },
   {
@@ -104,6 +112,21 @@ const elementList: TElement[] = [
     styles: {
       width: "100px",
       height: "auto",
+      display: "inline-block",
+    },
+  },
+  {
+    id: 6,
+    type: "divider",
+    text: "Divider",
+    content: [],
+    meta: {
+      hasChildren: false,
+      props: {},
+    },
+    properties: {},
+    styles: {
+      width: "100%",
     },
   },
 ];
@@ -111,9 +134,13 @@ const elementList: TElement[] = [
 const document = ref<TElement>(structuredClone(elementList[0]));
 const selectedBlock = ref<TElement | null>(null);
 const items = ref<TElement[]>(structuredClone(elementList));
+const selectedTab = ref<"elements" | "blocks">("elements");
 
 const handleClick = (block: TElement) => {
   selectedBlock.value = block;
+  if (block.type !== "container") {
+    selectedTab.value = "elements";
+  }
 };
 
 const handleCreateComponent = (block: TElement) => {
@@ -125,13 +152,46 @@ const handleCreateComponent = (block: TElement) => {
 
 <template>
   <div class="p-2 box-border flex flex-col h-screen gap-2">
-    <div class="flex items-center justify-center gap-2 bg-amber-200 h-[100px] w-full">
+    <div class="flex items-center justify-start gap-2 bg-amber-200 h-[100px] w-full">
+      <div class="h-full flex flex-col justify-between p-1">
+        <button
+          class="text-white px-4 py-2"
+          :class="[selectedTab === 'elements' ? 'bg-amber-700' : 'bg-amber-500']"
+          @click="selectedTab = 'elements'"
+        >
+          Elements
+        </button>
+        <button
+          class="text-white px-4 py-2"
+          :class="[selectedTab === 'blocks' ? 'bg-amber-700' : 'bg-amber-500']"
+          @click="selectedTab = 'blocks'"
+        >
+          Blocks
+        </button>
+      </div>
       <DraggableItem
+        v-if="selectedTab === 'elements'"
         v-for="item in items"
         :key="item.id"
         :text="item.text"
         :meta="item"
       />
+      <div v-if="selectedTab === 'blocks'" class="flex gap-2">
+        <DraggableItem
+          v-for="block in [1, 2, 3, 4, 5, 6]"
+          :key="block"
+          :text="`Block ${block}`"
+          :meta="{
+            ...elementList[0],
+            styles: {
+              display: 'grid',
+              gridTemplateColumns: `repeat(${block}, 1fr)`,
+              gap: '1rem',
+              width: '100%',
+            },
+          }"
+        />
+      </div>
     </div>
 
     <div class="flex gap-2 bg-amber-900 h-full p-2">

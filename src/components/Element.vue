@@ -20,6 +20,8 @@ const renderElement = computed(() => {
       return "button";
     case "image":
       return "img";
+    case "divider":
+      return "hr";
     default:
       return "div";
   }
