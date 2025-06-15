@@ -7,10 +7,50 @@ const emit = defineEmits<{
 }>();
 
 const element = defineModel<TElement>({ required: true });
+const name = ref("");
+
+const handleAddProp = () => {
+  element.value.meta.props[name.value] = "";
+  name.value = "";
+};
+
+const handleRemoveProp = (prop: string) => {
+  delete element.value.meta.props[prop];
+};
 </script>
 
 <template>
   <div class="p-4 bg-amber-200 text-amber-950 shadow max-h-[500px] overflow-y-auto">
+    <div v-if="element.meta.isComponent" class="flex flex-col">
+      <h3 class="text-lg font-bold mb-4">Configuración de Componente</h3>
+      <h4>Propiedades</h4>
+      <div v-for="(prop, index) in Object.keys(element.meta.props)" :key="index">
+        <label class="block text-sm font-medium text-gray-700"
+          >{{ prop }}
+          <button
+            class="bg-amber-700 text-white px-4 py-2 rounded-md"
+            @click="handleRemoveProp(prop)"
+          >
+            Remove
+          </button>
+        </label>
+      </div>
+      <div class="">
+        <label class="block text-sm font-medium text-gray-700">Nombre</label>
+        <input
+          v-model="name"
+          type="text"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        />
+        <button
+          class="bg-amber-700 text-white px-4 py-2 rounded-md w-full mt-2"
+          @click="handleAddProp"
+        >
+          Agregar
+        </button>
+      </div>
+    </div>
+
     <h3 class="text-lg font-bold mb-4">Configuración de Estilos</h3>
 
     <div class="space-y-4">
@@ -61,11 +101,30 @@ const element = defineModel<TElement>({ required: true });
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         />
       </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Minimum height</label>
+        <input
+          v-model="element.styles.minHeight"
+          type="text"
+          placeholder="ej: 100px"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
 
       <div>
         <label class="block text-sm font-medium text-gray-700">Width</label>
         <input
           v-model="element.styles.width"
+          type="text"
+          placeholder="ej: 100px"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Minimum width</label>
+        <input
+          v-model="element.styles.minWidth"
           type="text"
           placeholder="ej: 100px"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"

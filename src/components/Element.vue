@@ -15,9 +15,11 @@ const renderElement = computed(() => {
     case "paragraph":
       return "p";
     case "heading":
-      return "h2";
+      return props.element.meta.tag;
     case "button":
       return "button";
+    case "image":
+      return "img";
     default:
       return "div";
   }
@@ -25,12 +27,7 @@ const renderElement = computed(() => {
 </script>
 
 <template>
-  <component
-    :is="renderElement"
-    :href="element.type === 'link' ? '#' : undefined"
-    :style="element.styles"
-    v-bind="element.properties"
-  >
+  <component :is="renderElement" :style="element.styles" v-bind="element.properties">
     <slot>
       {{ element.text }}
     </slot>

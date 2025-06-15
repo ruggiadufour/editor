@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, toRaw } from "vue";
 import BlockBuilder from "@/components/BlockBuilder.vue";
 import DraggableItem from "@/components/DraggableItem.vue";
 import type { TElement } from "@/types";
@@ -14,10 +14,10 @@ const elementList: TElement[] = [
     content: [],
     meta: {
       hasChildren: true,
+      props: {},
     },
     properties: {},
     styles: {
-      minHeight: "100px",
       width: "100%",
       padding: "10px",
       display: "flex",
@@ -34,6 +34,7 @@ const elementList: TElement[] = [
     content: [],
     meta: {
       hasChildren: false,
+      props: {},
     },
     properties: {
       href: location.href,
@@ -41,6 +42,8 @@ const elementList: TElement[] = [
     styles: {
       textDecoration: "underline",
       color: "blue",
+      padding: "1rem",
+      display: "inline-block",
     },
   },
   {
@@ -50,6 +53,7 @@ const elementList: TElement[] = [
     content: [],
     meta: {
       hasChildren: false,
+      props: {},
     },
     properties: {},
     styles: {},
@@ -61,6 +65,8 @@ const elementList: TElement[] = [
     content: [],
     meta: {
       hasChildren: false,
+      tag: "h1",
+      props: {},
     },
     properties: {},
     styles: {},
@@ -72,13 +78,32 @@ const elementList: TElement[] = [
     content: [],
     meta: {
       hasChildren: false,
+      props: {},
     },
     properties: {},
     styles: {
       backgroundColor: "lightblue",
       color: "black",
       padding: "10px",
+      width: "auto",
+    },
+  },
+  {
+    id: 5,
+    type: "image",
+    text: "Image",
+    content: [],
+    meta: {
+      hasChildren: false,
+      props: {},
+    },
+    properties: {
+      src:
+        "https://static.semrush.com/blog/uploads/media/39/4f/394f92fd06792246f5833d1ab3c05c4d/reverse-image-search.svg",
+    },
+    styles: {
       width: "100px",
+      height: "auto",
     },
   },
 ];
@@ -89,6 +114,12 @@ const items = ref<TElement[]>(structuredClone(elementList));
 
 const handleClick = (block: TElement) => {
   selectedBlock.value = block;
+};
+
+const handleCreateComponent = (block: TElement) => {
+  block.meta.isComponent = true;
+  block.meta.props = {};
+  items.value.push(block);
 };
 </script>
 
@@ -105,7 +136,12 @@ const handleClick = (block: TElement) => {
 
     <div class="flex gap-2 bg-amber-900 h-full p-2">
       <div class="h-full w-2/3 bg-amber-800 flex flex-col justify-between">
-        <BlockBuilder v-model="document" :show-close="false" @on-click="handleClick" />
+        <BlockBuilder
+          v-model="document"
+          :show-close="false"
+          @on-click="handleClick"
+          @on-create-component="handleCreateComponent"
+        />
         <Preview :document="document" />
       </div>
       <div class="h-full w-1/3">

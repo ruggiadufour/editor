@@ -24,3 +24,8 @@ textarea {
 textarea {
   height: 5rem;
 }
+
+button:hover {
+  cursor: pointer;
+  opacity: 0.8;
+}

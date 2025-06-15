@@ -1,13 +1,22 @@
 <script setup lang="ts">
 import type { TElement } from "@/types";
+import { useGeneralStore } from "@/stores/general";
+import { storeToRefs } from "pinia";
+import { toRaw } from "vue";
 
 const props = defineProps<{
   text: string;
   meta: TElement;
 }>();
+const generalStore = useGeneralStore();
+const { elementDragging } = storeToRefs(generalStore);
 
 const handleDragStart = (e: DragEvent) => {
-  e.dataTransfer?.setData("application/json", JSON.stringify(props.meta));
+  if (props.meta.meta.isComponent) {
+    elementDragging.value = props.meta;
+  } else {
+    elementDragging.value = structuredClone(toRaw(props.meta));
+  }
 };
 </script>
 
