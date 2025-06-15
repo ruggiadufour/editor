@@ -1,9 +1,38 @@
 <script setup lang="ts">
-const handleDragStart = (e: DragEvent) => {
-  e.dataTransfer?.setData("application/json", JSON.stringify({ test: 1 }));
-};
+import { computed } from "vue";
+import type { TElement } from "@/types";
+
+const props = defineProps<{
+  element: TElement;
+}>();
+
+const renderElement = computed(() => {
+  switch (props.element.type) {
+    case "container":
+      return "div";
+    case "link":
+      return "a";
+    case "paragraph":
+      return "p";
+    case "heading":
+      return "h2";
+    case "button":
+      return "button";
+    default:
+      return "div";
+  }
+});
 </script>
 
 <template>
-  <div class="p-4 bg-amber-500" draggable="true" @dragstart="handleDragStart">hola</div>
+  <component
+    :is="renderElement"
+    :href="element.type === 'link' ? '#' : undefined"
+    :style="element.styles"
+    v-bind="element.properties"
+  >
+    <slot>
+      {{ element.text }}
+    </slot>
+  </component>
 </template>

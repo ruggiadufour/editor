@@ -9,3 +9,18 @@ body {
 * {
   box-sizing: border-box;
 }
+
+input,
+select,
+textarea {
+  background-color: white;
+  border: none;
+  outline: none;
+  border-radius: 0;
+  height: 2rem;
+  padding: 0.5rem 1rem;
+}
+
+textarea {
+  height: 5rem;
+}
