@@ -61,6 +61,7 @@ const handleDrop = (e: DragEvent) => {
   console.log(position);
 
   const method = position === "top" ? "unshift" : "push";
+  // @ts-ignore
   model.value.content[method](elementDragging.value);
   emit("on-click", elementDragging.value);
 };
