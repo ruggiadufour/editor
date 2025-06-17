@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, toRaw } from "vue";
+import { computed, ref, toRaw } from "vue";
 import BlockBuilder from "@/components/BlockBuilder.vue";
 import DraggableItem from "@/components/DraggableItem.vue";
 import type { TElement } from "@/types";
@@ -25,6 +25,7 @@ const elementList: TElement[] = [
       justifyContent: "center",
       alignItems: "center",
       gap: "0.5rem",
+      minHeight: "100px",
     },
   },
   {
@@ -35,6 +36,7 @@ const elementList: TElement[] = [
     meta: {
       hasChildren: false,
       props: {},
+      allowChildrenType: ["paragraph", "image"],
     },
     properties: {
       href: location.href,
@@ -56,6 +58,7 @@ const elementList: TElement[] = [
     meta: {
       hasChildren: false,
       props: {},
+      allowChildrenType: ["image", "link"],
     },
     properties: {},
     styles: {
@@ -72,6 +75,7 @@ const elementList: TElement[] = [
       hasChildren: false,
       tag: "h1",
       props: {},
+      allowChildrenType: ["image", "link"],
     },
     properties: {},
     styles: {
@@ -85,8 +89,9 @@ const elementList: TElement[] = [
     text: "Button",
     content: [],
     meta: {
-      hasChildren: false,
+      hasChildren: true,
       props: {},
+      allowChildrenType: ["paragraph", "image"],
     },
     properties: {},
     styles: {
@@ -134,6 +139,17 @@ const elementList: TElement[] = [
 const document = ref<TElement>(structuredClone(elementList[0]));
 const selectedBlock = ref<TElement | null>(null);
 const items = ref<TElement[]>(structuredClone(elementList));
+const showGrid = ref(true);
+const itemsBlocks = ref<TElement[]>(
+  [1, 2, 3, 4, 5, 6].map((item) => {
+    const element = structuredClone(elementList[0]);
+    element.id = item;
+    element.text = `${item} columns`;
+    element.styles.display = "grid";
+    element.styles.gridTemplateColumns = `repeat(${item}, 1fr)`;
+    return element;
+  })
+);
 const selectedTab = ref<"elements" | "blocks">("elements");
 
 const handleClick = (block: TElement) => {
@@ -170,27 +186,15 @@ const handleCreateComponent = (block: TElement) => {
         </button>
       </div>
       <DraggableItem
-        v-if="selectedTab === 'elements'"
-        v-for="item in items"
-        :key="item.id"
-        :text="item.text"
-        :meta="item"
+        v-for="element in selectedTab === 'elements' ? items : itemsBlocks"
+        :key="element.id"
+        :text="element.text"
+        :meta="element"
       />
-      <div v-if="selectedTab === 'blocks'" class="flex gap-2">
-        <DraggableItem
-          v-for="block in [1, 2, 3, 4, 5, 6]"
-          :key="block"
-          :text="`Block ${block}`"
-          :meta="{
-            ...elementList[0],
-            styles: {
-              display: 'grid',
-              gridTemplateColumns: `repeat(${block}, 1fr)`,
-              gap: '1rem',
-              width: '100%',
-            },
-          }"
-        />
+
+      <div class="flex gap-2 ml-auto justify-center items-start">
+        <label class="text-black" for="showGrid">Show grid</label>
+        <input type="checkbox" v-model="showGrid" id="showGrid" />
       </div>
     </div>
 
@@ -199,6 +203,7 @@ const handleCreateComponent = (block: TElement) => {
         <BlockBuilder
           v-model="document"
           :show-close="false"
+          :show-grid="showGrid"
           @on-click="handleClick"
           @on-create-component="handleCreateComponent"
         />

@@ -6,40 +6,51 @@ import type {
   ImgHTMLAttributes,
 } from 'vue'
 
+type TElementTypeGeneric = 'paragraph' | 'container' | 'divider'
+type TElementTypeExtended = 'image' | 'button' | 'link' | 'heading'
+type TElementType = TElementTypeGeneric | TElementTypeExtended
+
 interface TElementBase {
   id: number
   text: string
   content: TElement[]
-  type: string
+  type: TElementType
   styles: CSSProperties
+  class?: string | string[] | Record<string, string>
+  properties: HTMLAttributes
   meta: {
     props: Record<string, any>
     hasChildren: boolean
     isComponent?: boolean
+    allowChildrenType?: TElementType[]
   }
 }
 
-interface TElementLink extends TElementBase {
+interface TElementGeneric extends TElementBase {
+  type: TElementTypeGeneric
+}
+
+interface TElementExtended extends TElementBase {
+  type: TElementTypeExtended
+}
+
+// Extended
+interface TElementLink extends TElementExtended {
   type: 'link'
   properties: AnchorHTMLAttributes
 }
 
-interface TElementButton extends TElementBase {
+interface TElementButton extends TElementExtended {
   type: 'button'
   properties: ButtonHTMLAttributes
 }
 
-interface TElementImage extends TElementBase {
+interface TElementImage extends TElementExtended {
   type: 'image'
   properties: ImgHTMLAttributes
 }
 
-interface TElementGeneric extends TElementBase {
-  type: 'paragraph' | 'container' | 'divider'
-  properties: HTMLAttributes
-}
-
-interface TElementHeading extends TElementBase {
+interface TElementHeading extends TElementExtended {
   type: 'heading'
   properties: HTMLAttributes
   meta: TElementBase['meta'] & {
@@ -47,7 +58,7 @@ interface TElementHeading extends TElementBase {
   }
 }
 
-type TElement = TElementLink | TElementButton | TElementGeneric | TElementImage | TElementHeading
+type TElement = TElementLink | TElementButton | TElementImage | TElementHeading | TElementGeneric
 
 export interface TElementComponent {
   id: number
