@@ -148,6 +148,7 @@ const itemsBlocks = ref<TElement[]>(
     element.id = item;
     element.text = `${item} columns`;
     element.styles.display = "grid";
+    element.content = Array.from({ length: item }, () => structuredClone(elementList[0]));
     element.styles.gridTemplateColumns = `repeat(${item}, 1fr)`;
     return element;
   })

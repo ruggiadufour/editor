@@ -200,13 +200,14 @@ const handleCreateComponent = () => {
 <template>
   <div
     :class="[
-      'on-hover relative hover:outline- group left-0 top-0 hover:outline-blue-400',
+      'relative hover:outline- group left-0 top-0 hover:outline-blue-400',
       showGrid ? 'outline-1 outline-dashed' : '',
       isCenter ? 'outline-blue-400' : 'outline-amber-500',
       dragOver ? 'outline-3' : '',
     ]"
     :style="{
-      ...model.styles,
+      width: model.styles.width,
+      height: model.styles.height,
       padding: 0,
     }"
     :id="id"
@@ -216,7 +217,7 @@ const handleCreateComponent = () => {
     @click.stop="handleClick"
     @contextmenu="handleContextMenu"
   >
-    <div class="absolute left-0 top-0 w-full h-full text-black">
+    <div class="on-hover absolute left-0 top-0 w-full h-full text-black">
       <div
         class="absolute right-0 w-3 bg-transparent h-full cursor-col-resize"
         @click.stop
@@ -239,7 +240,7 @@ const handleCreateComponent = () => {
       ></div>
 
       <div
-        class="on-hover-item absolute right-[-0.5rem] top-[-0.5rem] flex flex-col gap-1 z-10 transition-opacity duration-300"
+        class="on-hover-item absolute right-0 top-0 flex flex-col gap-1 z-10 transition-opacity duration-300"
       >
         <div
           v-if="showClose"
@@ -274,18 +275,9 @@ const handleCreateComponent = () => {
           :is="tag"
           v-bind="model.properties"
           :style="{
-            padding: model.styles.padding,
+            ...model.styles,
             width: 'inherit',
             height: 'inherit',
-            flex: 'inherit',
-            display: 'inherit',
-            alignItems: 'inherit',
-            justifyContent: 'inherit',
-            flexDirection: 'inherit',
-            flexWrap: 'inherit',
-            flexGrow: 'inherit',
-            flexShrink: 'inherit',
-            gap: 'inherit',
           }"
         >
           <BlockBuilder
@@ -315,7 +307,7 @@ const handleCreateComponent = () => {
 .on-hover-item {
   opacity: 0;
 }
-.on-hover:hover .on-hover-item {
+.on-hover:hover > .on-hover-item {
   opacity: 1;
 }
 </style>
