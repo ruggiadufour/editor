@@ -200,7 +200,7 @@ const handleCreateComponent = () => {
 <template>
   <div
     :class="[
-      'relative hover:outline- group left-0 top-0 hover:outline-blue-400',
+      'on-hover relative hover:outline- group left-0 top-0 hover:outline-blue-400',
       showGrid ? 'outline-1 outline-dashed' : '',
       isCenter ? 'outline-blue-400' : 'outline-amber-500',
       dragOver ? 'outline-3' : '',
@@ -237,6 +237,25 @@ const handleCreateComponent = () => {
         @click.stop
         @mousedown.stop="handleResizeStart($event, 'bottom')"
       ></div>
+
+      <div
+        class="on-hover-item absolute right-[-0.5rem] top-[-0.5rem] flex flex-col gap-1 z-10 transition-opacity duration-300"
+      >
+        <div
+          v-if="showClose"
+          class="w-[1rem] h-[1rem] bg-amber-500 flex items-center justify-center rounded-full cursor-pointer"
+          @click.stop="emit('on-remove', model)"
+        >
+          X
+        </div>
+        <div
+          v-if="showClose"
+          class="w-[1rem] h-[1rem] bg-amber-500 flex items-center justify-center rounded-full"
+          @click.stop="emit('on-create-component', model)"
+        >
+          C
+        </div>
+      </div>
     </div>
 
     <div
@@ -292,4 +311,11 @@ const handleCreateComponent = () => {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.on-hover-item {
+  opacity: 0;
+}
+.on-hover:hover .on-hover-item {
+  opacity: 1;
+}
+</style>
