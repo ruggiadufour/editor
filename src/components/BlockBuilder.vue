@@ -12,21 +12,20 @@ type DragOverPosition = "top-prev" | "left-prev" | "top" | "bottom" | "center" |
 
 const emit = defineEmits<{
   (e: "on-remove", block: TElement): void;
-  (e: "on-click", block: TElement): void;
+  (e: "on-select", block: TElement): void;
   (e: "on-create-component", block: TElement): void;
   (e: "on-drop-prev", direction: "top" | "left"): void;
 }>();
 const { showClose = true, disabled = false, dropPrev = true } = defineProps<{
   showClose?: boolean;
   disabled?: boolean;
-  showGrid?: boolean;
   dropPrev?: boolean;
 }>();
 
 const model = defineModel<TElement>({ type: Object, required: true });
 const generalStore = useGeneralStore();
 const id = useId();
-const { elementDragging } = storeToRefs(generalStore);
+const { elementDragging, showGrid } = storeToRefs(generalStore);
 
 const dragOver = ref(false);
 const dragOverPosition = ref<DragOverPosition | number | null>(null);
@@ -93,14 +92,13 @@ const handleDrop = (e: DragEvent, index: number | null = null) => {
   if (index !== null) {
     // @ts-ignore
     model.value.content.splice(index + 1, 0, elementDragging.value);
-    emit("on-click", elementDragging.value);
   } else {
     const position = handleShowDragOver(e, index);
     const method = position === "top" ? "unshift" : "push";
     // @ts-ignore
     model.value.content[method](elementDragging.value);
-    emit("on-click", elementDragging.value);
   }
+  handleSelect(elementDragging.value);
 };
 
 const handleDragOver = (e: DragEvent, index: number | null = null) => {
@@ -123,8 +121,9 @@ const handleRemove = (index: number) => {
   model.value.content = model.value.content.filter((_, i) => i !== index);
 };
 
-const handleClick = () => {
-  emit("on-click", model.value);
+const handleSelect = (element: TElement | null = null) => {
+  emit("on-select", element || model.value);
+  generalStore.handleSelectElement(element || model.value);
 };
 
 const handleContextMenu = (e: MouseEvent) => {
@@ -194,6 +193,7 @@ const handleResizeEnd = () => {
 
 const handleCreateComponent = () => {
   emit("on-create-component", model.value);
+  generalStore.handleCreateComponent(model.value);
 };
 </script>
 
@@ -214,7 +214,7 @@ const handleCreateComponent = () => {
     @drop.stop="handleDrop"
     @dragover.stop="handleDragOver"
     @dragleave="handleDragLeave"
-    @click.stop="handleClick"
+    @click.stop="handleSelect()"
     @contextmenu="handleContextMenu"
   >
     <div class="on-hover absolute left-0 top-0 w-full h-full text-black">
@@ -252,7 +252,7 @@ const handleCreateComponent = () => {
         <div
           v-if="showClose"
           class="w-[1rem] h-[1rem] bg-amber-500 flex items-center justify-center rounded-full"
-          @click.stop="emit('on-create-component', model)"
+          @click.stop="handleCreateComponent"
         >
           C
         </div>
@@ -286,10 +286,9 @@ const handleCreateComponent = () => {
             :key="index"
             v-model="model.content[index]"
             :disabled="!enableDrop"
-            :show-grid="showGrid"
             @on-drop-prev="handleDropPrev($event, index)"
             @on-remove="handleRemove(index)"
-            @on-click="emit('on-click', $event)"
+            @on-select="emit('on-select', $event)"
             @on-create-component="emit('on-create-component', $event)"
           />
           {{

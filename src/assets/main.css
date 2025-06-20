@@ -21,6 +21,13 @@ textarea {
   padding: 0.5rem 1rem;
 }
 
+input:disabled,
+select:disabled,
+textarea:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
 textarea {
   height: 5rem;
 }

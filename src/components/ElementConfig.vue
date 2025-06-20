@@ -1,30 +1,38 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import type { TElement } from "@/types";
+import { useGeneralStore } from "@/stores/general";
+import { storeToRefs } from "pinia";
 
 const emit = defineEmits<{
   (e: "update", element: TElement): void;
 }>();
 
-const element = defineModel<TElement>({ required: true });
+const generalStore = useGeneralStore();
+const { selectedElement } = storeToRefs(generalStore);
 const name = ref("");
 
 const handleAddProp = () => {
-  element.value.meta.props[name.value] = "";
+  if (!selectedElement.value) return;
+  selectedElement.value.meta.props[name.value] = "";
   name.value = "";
 };
 
 const handleRemoveProp = (prop: string) => {
-  delete element.value.meta.props[prop];
+  if (!selectedElement.value) return;
+  delete selectedElement.value.meta.props[prop];
 };
 </script>
 
 <template>
-  <div class="p-4 bg-amber-200 text-amber-950 shadow max-h-[500px] overflow-y-auto">
-    <div v-if="element.meta.isComponent" class="flex flex-col">
+  <div
+    v-if="selectedElement"
+    class="p-4 bg-amber-200 text-amber-950 shadow max-h-[500px] w-full overflow-y-auto"
+  >
+    <div v-if="selectedElement.meta.isComponent" class="flex flex-col">
       <h3 class="text-lg font-bold mb-4">Configuración de Componente</h3>
       <h4>Propiedades</h4>
-      <div v-for="(prop, index) in Object.keys(element.meta.props)" :key="index">
+      <div v-for="(prop, index) in Object.keys(selectedElement.meta.props)" :key="index">
         <label class="block text-sm font-medium text-gray-700"
           >{{ prop }}
           <button
@@ -53,44 +61,44 @@ const handleRemoveProp = (prop: string) => {
 
     <h3 class="text-lg font-bold mb-4">Configuración de Estilos</h3>
 
-    <div class="space-y-4">
+    <div class="flex flex-wrap gap-2 space-y-4">
       <div>
         <label class="block text-sm font-medium text-gray-700">Texto</label>
         <textarea
-          v-if="element.type === 'paragraph'"
-          v-model="element.text"
+          v-if="selectedElement.type === 'paragraph'"
+          v-model="selectedElement.text"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         ></textarea>
         <input
           v-else
-          v-model="element.text"
+          v-model="selectedElement.text"
           type="text"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         />
       </div>
 
-      <div v-if="element.type === 'link'">
+      <div v-if="selectedElement.type === 'link'">
         <label class="block text-sm font-medium text-gray-700">Source (URL)</label>
         <input
-          v-model="element.properties.href"
+          v-model="selectedElement.properties.href"
           type="text"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         />
       </div>
 
-      <div v-if="element.type === 'image'">
+      <div v-if="selectedElement.type === 'image'">
         <label class="block text-sm font-medium text-gray-700">Source (URL)</label>
         <input
-          v-model="element.properties.src"
+          v-model="selectedElement.properties.src"
           type="text"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         />
       </div>
 
-      <div v-if="element.type === 'heading'">
+      <div v-if="selectedElement.type === 'heading'">
         <label class="block text-sm font-medium text-gray-700">Type</label>
         <select
-          v-model="element.meta.tag"
+          v-model="selectedElement.meta.tag"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         >
           <option value="h1">Title H1</option>
@@ -104,13 +112,17 @@ const handleRemoveProp = (prop: string) => {
 
       <div>
         <label class="block text-sm font-medium text-gray-700">Color de texto</label>
-        <input v-model="element.styles.color" type="color" class="mt-1 block w-full" />
+        <input
+          v-model="selectedElement.styles.color"
+          type="color"
+          class="mt-1 block w-full"
+        />
       </div>
 
       <div>
         <label class="block text-sm font-medium text-gray-700">Color de fondo</label>
         <input
-          v-model="element.styles.backgroundColor"
+          v-model="selectedElement.styles.backgroundColor"
           type="color"
           class="mt-1 block w-full"
         />
@@ -119,7 +131,7 @@ const handleRemoveProp = (prop: string) => {
       <div>
         <label class="block text-sm font-medium text-gray-700">Height</label>
         <input
-          v-model="element.styles.height"
+          v-model="selectedElement.styles.height"
           type="text"
           placeholder="ej: 100px"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -128,7 +140,7 @@ const handleRemoveProp = (prop: string) => {
       <div>
         <label class="block text-sm font-medium text-gray-700">Minimum height</label>
         <input
-          v-model="element.styles.minHeight"
+          v-model="selectedElement.styles.minHeight"
           type="text"
           placeholder="ej: 100px"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -138,7 +150,7 @@ const handleRemoveProp = (prop: string) => {
       <div>
         <label class="block text-sm font-medium text-gray-700">Width</label>
         <input
-          v-model="element.styles.width"
+          v-model="selectedElement.styles.width"
           type="text"
           placeholder="ej: 100px"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -148,7 +160,7 @@ const handleRemoveProp = (prop: string) => {
       <div>
         <label class="block text-sm font-medium text-gray-700">Minimum width</label>
         <input
-          v-model="element.styles.minWidth"
+          v-model="selectedElement.styles.minWidth"
           type="text"
           placeholder="ej: 100px"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -158,7 +170,7 @@ const handleRemoveProp = (prop: string) => {
       <div>
         <label class="block text-sm font-medium text-gray-700">Padding</label>
         <input
-          v-model="element.styles.padding"
+          v-model="selectedElement.styles.padding"
           type="text"
           placeholder="ej: 1rem"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -168,7 +180,7 @@ const handleRemoveProp = (prop: string) => {
       <div>
         <label class="block text-sm font-medium text-gray-700">Margen</label>
         <input
-          v-model="element.styles.margin"
+          v-model="selectedElement.styles.margin"
           type="text"
           placeholder="ej: 1rem"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -178,7 +190,7 @@ const handleRemoveProp = (prop: string) => {
       <div>
         <label class="block text-sm font-medium text-gray-700">Tamaño de fuente</label>
         <input
-          v-model="element.styles.fontSize"
+          v-model="selectedElement.styles.fontSize"
           type="text"
           placeholder="ej: 1.5rem"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -188,7 +200,7 @@ const handleRemoveProp = (prop: string) => {
       <div>
         <label class="block text-sm font-medium text-gray-700">Peso de fuente</label>
         <select
-          v-model="element.styles.fontWeight"
+          v-model="selectedElement.styles.fontWeight"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         >
           <option value="">Normal</option>
@@ -200,7 +212,7 @@ const handleRemoveProp = (prop: string) => {
       <div>
         <label class="block text-sm font-medium text-gray-700">Borde redondeado</label>
         <input
-          v-model="element.styles.borderRadius"
+          v-model="selectedElement.styles.borderRadius"
           type="text"
           placeholder="ej: 0.5rem"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -210,7 +222,7 @@ const handleRemoveProp = (prop: string) => {
       <div>
         <label class="block text-sm font-medium text-gray-700">Alineación</label>
         <select
-          v-model="element.styles.textAlign"
+          v-model="selectedElement.styles.textAlign"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         >
           <option value="left">Izquierda</option>
@@ -223,7 +235,7 @@ const handleRemoveProp = (prop: string) => {
       <div>
         <label class="block text-sm font-medium text-gray-700">Display</label>
         <select
-          v-model="element.styles.display"
+          v-model="selectedElement.styles.display"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         >
           <option value="flex">Flex</option>
@@ -236,10 +248,10 @@ const handleRemoveProp = (prop: string) => {
       </div>
 
       <!-- if flex -->
-      <div v-if="element.styles.display === 'flex'">
+      <div v-if="selectedElement.styles.display === 'flex'">
         <label class="block text-sm font-medium text-gray-700">Flex direction</label>
         <select
-          v-model="element.styles.flexDirection"
+          v-model="selectedElement.styles.flexDirection"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         >
           <option value="row">Row</option>
@@ -247,20 +259,20 @@ const handleRemoveProp = (prop: string) => {
         </select>
       </div>
 
-      <div v-if="['flex', 'grid'].includes(element.styles.display || '')">
+      <div v-if="['flex', 'grid'].includes(selectedElement.styles.display || '')">
         <label class="block text-sm font-medium text-gray-700">Gap</label>
         <input
-          v-model="element.styles.gap"
+          v-model="selectedElement.styles.gap"
           type="text"
           placeholder="ej: 1rem"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         />
       </div>
 
-      <div v-if="element.styles.display === 'flex'">
+      <div v-if="selectedElement.styles.display === 'flex'">
         <label class="block text-sm font-medium text-gray-700">Flex wrap</label>
         <select
-          v-model="element.styles.flexWrap"
+          v-model="selectedElement.styles.flexWrap"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         >
           <option value="wrap">Wrap</option>
@@ -269,10 +281,10 @@ const handleRemoveProp = (prop: string) => {
       </div>
 
       <!-- justify and align -->
-      <div v-if="element.styles.display === 'flex'">
+      <div v-if="selectedElement.styles.display === 'flex'">
         <label class="block text-sm font-medium text-gray-700">Justify content</label>
         <select
-          v-model="element.styles.justifyContent"
+          v-model="selectedElement.styles.justifyContent"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         >
           <option value="flex-start">Flex start</option>
@@ -283,10 +295,10 @@ const handleRemoveProp = (prop: string) => {
         </select>
       </div>
 
-      <div v-if="element.styles.display === 'flex'">
+      <div v-if="selectedElement.styles.display === 'flex'">
         <label class="block text-sm font-medium text-gray-700">Align items</label>
         <select
-          v-model="element.styles.alignItems"
+          v-model="selectedElement.styles.alignItems"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         >
           <option value="flex-start">Flex start</option>
@@ -296,12 +308,12 @@ const handleRemoveProp = (prop: string) => {
       </div>
 
       <!-- if grid -->
-      <div v-if="element.styles.display === 'grid'">
+      <div v-if="selectedElement.styles.display === 'grid'">
         <label class="block text-sm font-medium text-gray-700"
           >Grid template columns</label
         >
         <select
-          v-model="element.styles.gridTemplateColumns"
+          v-model="selectedElement.styles.gridTemplateColumns"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         >
           <option value="repeat(1, 1fr)">1 column</option>
@@ -316,10 +328,10 @@ const handleRemoveProp = (prop: string) => {
       </div>
 
       <!-- if grid -->
-      <div v-if="element.styles.display === 'grid'">
+      <div v-if="selectedElement.styles.display === 'grid'">
         <label class="block text-sm font-medium text-gray-700">Grid template rows</label>
         <select
-          v-model="element.styles.gridTemplateRows"
+          v-model="selectedElement.styles.gridTemplateRows"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         >
           <option value="repeat(1, 1fr)">1 row</option>
