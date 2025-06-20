@@ -34,6 +34,10 @@ const renderElement = computed(() => {
       return "img";
     case "divider":
       return "hr";
+    case "list":
+      return "ul";
+    case "list-item":
+      return "li";
     default:
       return "div";
   }

@@ -6,7 +6,7 @@ import type {
   ImgHTMLAttributes,
 } from 'vue'
 
-type TElementTypeGeneric = 'paragraph' | 'container' | 'divider'
+type TElementTypeGeneric = 'paragraph' | 'container' | 'divider' | 'list' | 'list-item'
 type TElementTypeExtended = 'image' | 'button' | 'link' | 'heading'
 type TElementType = TElementTypeGeneric | TElementTypeExtended
 

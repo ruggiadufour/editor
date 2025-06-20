@@ -1,4 +1,4 @@
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, toRaw } from 'vue'
 import { defineStore } from 'pinia'
 import type { TElement, TTabs, TVariable, TVariableForm, TVariableGroup } from '@/types'
 import { BaseElements } from '@/utils/constants'
@@ -9,6 +9,7 @@ export const useGeneralStore = defineStore('general', () => {
   const elementDragging = ref<TElement | null>(null)
   const selectedElement = ref<TElement | null>(null)
   const selectedTab = ref<TTabs>('elements')
+  const currentDocument = ref<TElement>(structuredClone(containerElement))
   const showGrid = ref(true)
   const elements = ref<TElement[]>(structuredClone(BaseElements))
   const blocks = ref(
@@ -113,7 +114,20 @@ export const useGeneralStore = defineStore('general', () => {
     })
   }
 
-  // Aplicar variables al DOM cuando cambien
+  const saveState = () => {
+    localStorage.setItem(
+      'state',
+      JSON.stringify({
+        variables: toRaw(variables.value),
+        document: toRaw(currentDocument.value),
+      }),
+    )
+  }
+
+  const handleDeleteVariable = (key: string) => {
+    delete variables.value[key as keyof TVariable]
+  }
+
   watch(
     variables,
     () => {
@@ -122,14 +136,24 @@ export const useGeneralStore = defineStore('general', () => {
     { deep: true },
   )
 
-  // Aplicar variables iniciales al DOM
-  applyVariablesToDOM()
+  const getSavedState = () => {
+    const state = localStorage.getItem('state')
+
+    if (state) {
+      const data = JSON.parse(state)
+
+      variables.value = data.variables
+      currentDocument.value = data.document
+    }
+  }
 
   onMounted(() => {
     applyVariablesToDOM()
+    getSavedState()
   })
 
   return {
+    currentDocument,
     elementDragging,
     selectedElement,
     selectedTab,
@@ -146,5 +170,7 @@ export const useGeneralStore = defineStore('general', () => {
     handleCreateComponent,
     handleAddVariable,
     applyVariablesToDOM,
+    saveState,
+    handleDeleteVariable,
   }
 })

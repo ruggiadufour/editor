@@ -5,6 +5,7 @@ import { useGeneralStore } from "@/stores/general";
 import { storeToRefs } from "pinia";
 import InputUnit from "@/components/InputUnit.vue";
 import ConfigLabel from "@/components/ConfigLabel.vue";
+import InputColor from "@/components/InputColor.vue";
 
 const emit = defineEmits<{
   (e: "update", element: TElement): void;
@@ -112,23 +113,13 @@ const handleRemoveProp = (prop: string) => {
         </select>
       </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Color de texto</label>
-        <input
-          v-model="selectedElement.styles.color"
-          type="color"
-          class="mt-1 block w-full"
-        />
-      </div>
+      <ConfigLabel label="Color de texto">
+        <InputColor v-model="selectedElement.styles.color" />
+      </ConfigLabel>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Color de fondo</label>
-        <input
-          v-model="selectedElement.styles.backgroundColor"
-          type="color"
-          class="mt-1 block w-full"
-        />
-      </div>
+      <ConfigLabel label="Color de fondo">
+        <InputColor v-model="selectedElement.styles.backgroundColor" />
+      </ConfigLabel>
 
       <ConfigLabel label="Height">
         <InputUnit v-model="selectedElement.styles.height" property-type="height" />

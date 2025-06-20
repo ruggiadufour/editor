@@ -129,4 +129,37 @@ export const BaseElements: TElement[] = [
       width: '100%',
     },
   },
+  {
+    id: 7,
+    type: 'list',
+    text: 'List',
+    content: [],
+    meta: {
+      hasChildren: true,
+      props: {},
+      allowChildrenType: ['list-item'],
+    },
+    properties: {},
+    styles: {
+      width: '100%',
+      minHeight: '100px',
+      listStyleType: 'disc',
+      listStyle: 'inside',
+    },
+  },
+  {
+    id: 8,
+    type: 'list-item',
+    text: 'List item',
+    content: [],
+    meta: {
+      hasChildren: false,
+      props: {},
+      allowChildrenType: ['paragraph', 'link', 'image'],
+    },
+    properties: {},
+    styles: {
+      width: '100%',
+    },
+  },
 ]

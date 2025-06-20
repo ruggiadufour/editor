@@ -220,22 +220,18 @@ const handleCreateComponent = () => {
     <div class="on-hover absolute left-0 top-0 w-full h-full text-black">
       <div
         class="absolute right-0 w-3 bg-transparent h-full cursor-col-resize"
-        @click.stop
         @mousedown.stop="handleResizeStart($event, 'right')"
       ></div>
       <div
         class="absolute left-0 w-3 bg-transparent h-full cursor-col-resize"
-        @click.stop
         @mousedown.stop="handleResizeStart($event, 'left')"
       ></div>
       <div
         class="absolute top-0 w-full bg-transparent h-3 cursor-row-resize"
-        @click.stop
         @mousedown.stop="handleResizeStart($event, 'top')"
       ></div>
       <div
         class="absolute bottom-0 w-full bg-transparent h-3 cursor-row-resize"
-        @click.stop
         @mousedown.stop="handleResizeStart($event, 'bottom')"
       ></div>
 
@@ -261,12 +257,12 @@ const handleCreateComponent = () => {
 
     <div
       data-position="top"
-      class="absolute left-[-0.5rem] top-[-0.5rem] w-[calc(100%+0.5rem)] h-[1rem]"
+      class="absolute left-[-0.5rem] top-[-0.5rem] w-[calc(100%+0.5rem)] h-[1rem] pointer-events-none"
       :class="dragOverPosition === 'top-prev' ? 'bg-blue-500/50' : 'bg-transparent'"
     ></div>
     <div
       data-position="left"
-      class="absolute left-[-0.5rem] top-[-0.5rem] h-[calc(100%+0.5rem)] w-[1rem]"
+      class="absolute left-[-0.5rem] top-[-0.5rem] h-[calc(100%+0.5rem)] w-[1rem] pointer-events-none"
       :class="dragOverPosition === 'left-prev' ? 'bg-blue-500/50' : 'bg-transparent'"
     ></div>
     <Element :element="model">

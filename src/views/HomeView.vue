@@ -2,13 +2,12 @@
 import { computed, onMounted, ref, toRaw } from "vue";
 import BlockBuilder from "@/components/BlockBuilder.vue";
 import DraggableItem from "@/components/DraggableItem.vue";
-import type { TElement } from "@/types";
 import ElementConfig from "@/components/ElementConfig.vue";
 import Preview from "@/components/Preview.vue";
 import InputUnit from "@/components/InputUnit.vue";
-import { BaseElements } from "@/utils/constants";
 import { useGeneralStore } from "@/stores/general";
 import { storeToRefs } from "pinia";
+import InputColor from "@/components/InputColor.vue";
 
 const generalStore = useGeneralStore();
 const {
@@ -19,11 +18,11 @@ const {
   showGrid,
   variables,
   newVariable,
+  currentDocument,
 } = storeToRefs(generalStore);
-const document = ref<TElement>(structuredClone(BaseElements[0]));
 
 onMounted(() => {
-  generalStore.handleSelectElement(document.value);
+  generalStore.handleSelectElement(currentDocument.value);
 });
 </script>
 
@@ -36,15 +35,15 @@ onMounted(() => {
 
     <div class="flex gap-2 bg-amber-900 h-full p-2">
       <div class="h-full w-2/3 bg-amber-800 flex flex-col justify-between">
-        <BlockBuilder v-model="document" :show-close="false" :drop-prev="false" />
-        <Preview v-if="false" :document="document" />
+        <BlockBuilder v-model="currentDocument" :show-close="false" :drop-prev="false" />
+        <Preview :document="currentDocument" />
       </div>
       <div class="h-full w-1/3 overflow-y-auto">
         <div
           class="flex flex-col items-start justify-start gap-2 bg-amber-200 p-2 w-full"
         >
           <div
-            class="h-full flex justify-between w-full sticky top-[0.5rem] overflow-x-auto"
+            class="h-full flex justify-between w-full stickytop-[0.5rem] overflow-x-auto"
           >
             <button
               class="text-white px-4 py-2 w-full"
@@ -78,6 +77,14 @@ onMounted(() => {
           <div class="flex gap-2 ml-auto justify-start items-center">
             <label class="text-black" for="showGrid">Show grid</label>
             <input type="checkbox" v-model="showGrid" id="showGrid" />
+          </div>
+          <div class="flex gap-2 ml-auto justify-start items-center w-full">
+            <button
+              class="bg-amber-700 text-white px-4 py-2 w-full"
+              @click="generalStore.saveState"
+            >
+              Save state
+            </button>
           </div>
 
           <div class="flex flex-wrap gap-2 text-black">
@@ -122,9 +129,8 @@ onMounted(() => {
                 </div>
                 <div class="flex gap-2">
                   <label>Value</label>
-                  <input
+                  <InputColor
                     v-if="newVariable.group === 'colors'"
-                    type="color"
                     v-model="newVariable.value"
                     required
                     placeholder="Enter value"
@@ -132,6 +138,7 @@ onMounted(() => {
                   <InputUnit
                     v-else
                     v-model="newVariable.value"
+                    property-type="general"
                     placeholder="Enter value"
                   />
                 </div>
@@ -144,17 +151,27 @@ onMounted(() => {
               >
                 <h4 class="uppercase">{{ group.group }}</h4>
                 <div class="grid grid-cols-2 gap-1">
-                  <div v-for="variable of group.variables" :key="variable.name">
+                  <div
+                    v-for="variable of group.variables"
+                    :key="variable.name"
+                    class="relative"
+                  >
                     <span class="mr-2">{{ variable.name }}:</span>
-                    <input
+                    <InputColor
                       v-if="group.group === 'colors'"
-                      type="color"
                       v-model="variables[`--${group.group}-${variable.name}`]"
                     />
                     <InputUnit
                       v-else
                       v-model="variables[`--${group.group}-${variable.name}`]"
+                      property-type="general"
                     />
+                    <button
+                      class="absolute top-0 right-0 bg-amber-400 rounded-full px-2 text-xs"
+                      @click="generalStore.handleDeleteVariable(variable.key)"
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
               </div>
