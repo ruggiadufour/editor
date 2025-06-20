@@ -21,6 +21,7 @@ interface TElementBase {
   meta: {
     props: Record<string, any>
     hasChildren: boolean
+    hideText?: boolean
     isComponent?: boolean
     allowChildrenType?: TElementType[]
   }

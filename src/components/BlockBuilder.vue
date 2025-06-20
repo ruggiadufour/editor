@@ -1,31 +1,35 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, useId } from "vue";
 import type { TElement } from "@/types";
 import Element from "./Element.vue";
 import { useGeneralStore } from "@/stores/general";
 import { storeToRefs } from "pinia";
-import Draggable from "vuedraggable";
-import { toRaw } from "vue";
 
 const OFFSET_HOVER_Y = 40;
+const OFFSET_HOVER_PREV_Y = 8; // 0.5rem
+
+type DragOverPosition = "top-prev" | "left-prev" | "top" | "bottom" | "center" | number;
 
 const emit = defineEmits<{
   (e: "on-remove", block: TElement): void;
   (e: "on-click", block: TElement): void;
   (e: "on-create-component", block: TElement): void;
+  (e: "on-drop-prev", direction: "top" | "left"): void;
 }>();
-const { showClose = true, disabled = false } = defineProps<{
+const { showClose = true, disabled = false, dropPrev = true } = defineProps<{
   showClose?: boolean;
   disabled?: boolean;
   showGrid?: boolean;
+  dropPrev?: boolean;
 }>();
 
 const model = defineModel<TElement>({ type: Object, required: true });
 const generalStore = useGeneralStore();
+const id = useId();
 const { elementDragging } = storeToRefs(generalStore);
 
 const dragOver = ref(false);
-const dragOverPosition = ref<"top" | "bottom" | "center" | number | null>(null);
+const dragOverPosition = ref<DragOverPosition | number | null>(null);
 const isCenter = computed(() => dragOverPosition.value === "center");
 const enableDrop = computed(() => model.value.meta.hasChildren && !disabled);
 
@@ -37,7 +41,10 @@ const startHeight = ref(0);
 const contextMenu = ref<{ x: number; y: number }>({ x: 0, y: 0 });
 const resizeDirection = ref<"left" | "right" | "top" | "bottom" | null>(null);
 
-const handleShowDragOver = (e: DragEvent, index: number | null = null) => {
+const handleShowDragOver = (
+  e: DragEvent,
+  index: number | null = null
+): DragOverPosition => {
   const target = e.currentTarget as HTMLElement;
   const rect = target.getBoundingClientRect();
 
@@ -47,8 +54,13 @@ const handleShowDragOver = (e: DragEvent, index: number | null = null) => {
 
   const _ = e.clientX - rect.left;
   const relativeY = e.clientY - rect.top;
+  const relativeX = e.clientX - rect.left;
 
-  if (relativeY < OFFSET_HOVER_Y) {
+  if (relativeY < OFFSET_HOVER_PREV_Y) {
+    return "top-prev";
+  } else if (relativeX < OFFSET_HOVER_PREV_Y) {
+    return "left-prev";
+  } else if (relativeY < OFFSET_HOVER_Y) {
     return "top";
   } else if (relativeY > rect.height - OFFSET_HOVER_Y) {
     return "bottom";
@@ -57,10 +69,19 @@ const handleShowDragOver = (e: DragEvent, index: number | null = null) => {
   }
 };
 
+const handleDropPrev = (_: "top" | "left", index: number) => {
+  if (!elementDragging.value) return;
+  model.value.content.splice(index, 0, elementDragging.value);
+};
+
 const handleDrop = (e: DragEvent, index: number | null = null) => {
   e.preventDefault();
   const allowChildrenType = model.value.meta.allowChildrenType;
   resetState();
+
+  const targetElement = e.target as HTMLElement;
+  const position = targetElement.dataset.position as "top" | "left" | undefined;
+  if (dropPrev && position) return emit("on-drop-prev", position);
 
   if (
     (allowChildrenType && !allowChildrenType.includes(elementDragging.value?.type!)) ||
@@ -83,8 +104,6 @@ const handleDrop = (e: DragEvent, index: number | null = null) => {
 };
 
 const handleDragOver = (e: DragEvent, index: number | null = null) => {
-  console.log(e);
-
   e.preventDefault();
   dragOver.value = true;
   if (index !== null) {
@@ -93,6 +112,7 @@ const handleDragOver = (e: DragEvent, index: number | null = null) => {
     const position = handleShowDragOver(e);
     dragOverPosition.value = position;
   }
+  console.log(dragOverPosition.value);
 };
 
 const handleDragLeave = () => {
@@ -179,81 +199,95 @@ const handleCreateComponent = () => {
 
 <template>
   <div
-    class="relative inline-block"
-    :style="{ width: model.styles.width, height: model.styles.height }"
+    :class="[
+      'relative hover:outline- group left-0 top-0 hover:outline-blue-400',
+      showGrid ? 'outline-1 outline-dashed' : '',
+      isCenter ? 'outline-blue-400' : 'outline-amber-500',
+      dragOver ? 'outline-3' : '',
+    ]"
+    :style="{
+      ...model.styles,
+      padding: 0,
+    }"
+    :id="id"
+    @drop.stop="handleDrop"
+    @dragover.stop="handleDragOver"
+    @dragleave="handleDragLeave"
+    @click.stop="handleClick"
+    @contextmenu="handleContextMenu"
   >
-    <div
-      :class="[
-        'absolute  group w-full h-full left-0 top-0 hover:outline-blue-400',
-        showGrid ? 'outline-1 outline-dashed' : '',
-        isCenter ? 'outline-blue-400' : 'outline-amber-500',
-        dragOver ? 'outline-3' : '',
-      ]"
-      class="hover:outline-"
-      @drop.stop="handleDrop"
-      @dragover.stop="handleDragOver"
-      @dragleave="handleDragLeave"
-      @click.stop="handleClick"
-      @contextmenu="handleContextMenu"
-    >
-      <div
-        class="h-[5px] absolute top-0 left-0 w-full"
-        :class="{ 'bg-blue-400': dragOverPosition === 'top' }"
-      ></div>
-      <div
-        class="h-[5px] absolute bottom-0 left-0 w-full"
-        :class="{ 'bg-blue-400': dragOverPosition === 'bottom' }"
-      ></div>
-
+    <div class="absolute left-0 top-0 w-full h-full text-black">
       <div
         class="absolute right-0 w-3 bg-transparent h-full cursor-col-resize"
-        @mousedown="handleResizeStart($event, 'right')"
+        @click.stop
+        @mousedown.stop="handleResizeStart($event, 'right')"
       ></div>
       <div
         class="absolute left-0 w-3 bg-transparent h-full cursor-col-resize"
-        @mousedown="handleResizeStart($event, 'left')"
+        @click.stop
+        @mousedown.stop="handleResizeStart($event, 'left')"
       ></div>
       <div
         class="absolute top-0 w-full bg-transparent h-3 cursor-row-resize"
-        @mousedown="handleResizeStart($event, 'top')"
+        @click.stop
+        @mousedown.stop="handleResizeStart($event, 'top')"
       ></div>
       <div
         class="absolute bottom-0 w-full bg-transparent h-3 cursor-row-resize"
-        @mousedown="handleResizeStart($event, 'bottom')"
+        @click.stop
+        @mousedown.stop="handleResizeStart($event, 'bottom')"
       ></div>
-
-      <div
-        class="absolute top-[-10px] right-[-10px] group-hover:opacity-100 transition-opacity opacity-0"
-      >
-        <button
-          v-if="showClose"
-          class="bg-amber-700 p-0 h-5 w-5 text-white flex items-center justify-center rounded-full"
-          @click="emit('on-remove', model)"
-        >
-          x
-        </button>
-        <button
-          v-if="showClose"
-          class="bg-amber-700 p-0 h-5 w-5 text-white flex items-center justify-center rounded-full"
-          @click="handleCreateComponent"
-        >
-          c
-        </button>
-      </div>
     </div>
 
+    <div
+      data-position="top"
+      class="absolute left-[-0.5rem] top-[-0.5rem] w-[calc(100%+0.5rem)] h-[1rem]"
+      :class="dragOverPosition === 'top-prev' ? 'bg-blue-500/50' : 'bg-transparent'"
+    ></div>
+    <div
+      data-position="left"
+      class="absolute left-[-0.5rem] top-[-0.5rem] h-[calc(100%+0.5rem)] w-[1rem]"
+      :class="dragOverPosition === 'left-prev' ? 'bg-blue-500/50' : 'bg-transparent'"
+    ></div>
     <Element :element="model">
-      <BlockBuilder
-        v-if="model.meta.hasChildren || model.content.length"
-        v-for="(child, index) in model.content"
-        :key="index"
-        v-model="model.content[index]"
-        :disabled="!enableDrop"
-        :show-grid="showGrid"
-        @on-remove="handleRemove(index)"
-        @on-click="emit('on-click', $event)"
-        @on-create-component="emit('on-create-component', $event)"
-      />
+      <template #element="{ tag }">
+        <component
+          :is="tag"
+          v-bind="model.properties"
+          :style="{
+            padding: model.styles.padding,
+            width: 'inherit',
+            height: 'inherit',
+            flex: 'inherit',
+            display: 'inherit',
+            alignItems: 'inherit',
+            justifyContent: 'inherit',
+            flexDirection: 'inherit',
+            flexWrap: 'inherit',
+            flexGrow: 'inherit',
+            flexShrink: 'inherit',
+            gap: 'inherit',
+          }"
+        >
+          <BlockBuilder
+            v-if="model.meta.hasChildren && model.content.length"
+            v-for="(child, index) in model.content"
+            :key="index"
+            v-model="model.content[index]"
+            :disabled="!enableDrop"
+            :show-grid="showGrid"
+            @on-drop-prev="handleDropPrev($event, index)"
+            @on-remove="handleRemove(index)"
+            @on-click="emit('on-click', $event)"
+            @on-create-component="emit('on-create-component', $event)"
+          />
+          {{
+            !(model.meta.hasChildren && model.content.length) && !model.meta.hideText
+              ? model.text
+              : ""
+          }}
+        </component>
+      </template>
     </Element>
   </div>
 </template>

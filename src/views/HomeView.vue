@@ -116,7 +116,8 @@ const elementList: TElement[] = [
     },
     styles: {
       width: "100px",
-      height: "auto",
+      height: "100px",
+      objectFit: "contain",
       display: "inline-block",
     },
   },
@@ -127,6 +128,7 @@ const elementList: TElement[] = [
     content: [],
     meta: {
       hasChildren: false,
+      hideText: true,
       props: {},
     },
     properties: {},
