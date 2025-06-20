@@ -1,18 +1,9 @@
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { defineStore } from 'pinia'
-import type { TElement } from '@/types'
+import type { TElement, TTabs, TVariable, TVariableForm, TVariableGroup } from '@/types'
 import { BaseElements } from '@/utils/constants'
 
 const containerElement = BaseElements.find((element) => element.type === 'container')!
-
-type TTabs = 'elements' | 'blocks' | 'components' | 'variables'
-type TVariableGroup = 'colors' | 'spacing' | 'radius' | 'breakpoints'
-type TVariable = Record<`--${TVariableGroup}-${string}`, string>
-type TVariableForm = {
-  group: TVariableGroup
-  name: string
-  value: string
-}
 
 export const useGeneralStore = defineStore('general', () => {
   const elementDragging = ref<TElement | null>(null)
@@ -59,25 +50,26 @@ export const useGeneralStore = defineStore('general', () => {
   })
 
   const groupedVariables = computed(() => {
-    const groups: Record<string, { name: string; value: string }[]> = {}
+    const groups: Record<
+      string,
+      { group: string; variables: { name: string; value: string; key: string }[] }
+    > = {}
 
     Object.entries(variables.value).forEach(([key, value]) => {
       // Extraer el grupo y nombre de la variable (ej: '--colors-secondary' -> group: 'colors', name: 'secondary')
       const match = key.match(/^--([^-]+)-(.+)$/)
       if (match) {
         const [, group, name] = match
-        if (!groups[group]) {
-          groups[group] = []
+        groups[group] ??= {
+          group,
+          variables: [],
         }
-        groups[group].push({ name, value })
+        groups[group].variables.push({ name, value, key })
       }
     })
 
     // Convertir a array con el formato solicitado
-    return Object.entries(groups).map(([group, variables]) => ({
-      group,
-      variables,
-    }))
+    return groups
   })
 
   const currentTabElements = computed(() => {
@@ -98,6 +90,7 @@ export const useGeneralStore = defineStore('general', () => {
 
   const handleCreateComponent = (block: TElement) => {
     block.meta.isComponent = true
+    block.id = Date.now()
     block.meta.props = {}
     components.value.push(block)
     console.log(components.value)
@@ -112,6 +105,29 @@ export const useGeneralStore = defineStore('general', () => {
       value: '',
     }
   }
+
+  const applyVariablesToDOM = () => {
+    const root = document.documentElement
+    Object.entries(variables.value).forEach(([property, value]) => {
+      root.style.setProperty(property, value)
+    })
+  }
+
+  // Aplicar variables al DOM cuando cambien
+  watch(
+    variables,
+    () => {
+      applyVariablesToDOM()
+    },
+    { deep: true },
+  )
+
+  // Aplicar variables iniciales al DOM
+  applyVariablesToDOM()
+
+  onMounted(() => {
+    applyVariablesToDOM()
+  })
 
   return {
     elementDragging,
@@ -129,5 +145,6 @@ export const useGeneralStore = defineStore('general', () => {
     handleSelectElement,
     handleCreateComponent,
     handleAddVariable,
+    applyVariablesToDOM,
   }
 })

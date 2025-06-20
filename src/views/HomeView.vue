@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed, ref, toRaw } from "vue";
+import { computed, onMounted, ref, toRaw } from "vue";
 import BlockBuilder from "@/components/BlockBuilder.vue";
 import DraggableItem from "@/components/DraggableItem.vue";
 import type { TElement } from "@/types";
 import ElementConfig from "@/components/ElementConfig.vue";
 import Preview from "@/components/Preview.vue";
-import InputSize from "@/components/InputSize.vue";
+import InputUnit from "@/components/InputUnit.vue";
 import { BaseElements } from "@/utils/constants";
 import { useGeneralStore } from "@/stores/general";
 import { storeToRefs } from "pinia";
@@ -21,6 +21,10 @@ const {
   newVariable,
 } = storeToRefs(generalStore);
 const document = ref<TElement>(structuredClone(BaseElements[0]));
+
+onMounted(() => {
+  generalStore.handleSelectElement(document.value);
+});
 </script>
 
 <template>
@@ -99,11 +103,11 @@ const document = ref<TElement>(structuredClone(BaseElements[0]));
                   <label>Group</label>
                   <select v-model="newVariable.group" required placeholder="Select group">
                     <option
-                      v-for="group of groupedVariables"
-                      :key="group.group"
-                      :value="group.group"
+                      v-for="group in Object.keys(groupedVariables)"
+                      :key="group"
+                      :value="group"
                     >
-                      {{ group.group }}
+                      {{ group }}
                     </option>
                   </select>
                 </div>
@@ -125,7 +129,7 @@ const document = ref<TElement>(structuredClone(BaseElements[0]));
                     required
                     placeholder="Enter value"
                   />
-                  <InputSize
+                  <InputUnit
                     v-else
                     v-model="newVariable.value"
                     placeholder="Enter value"
@@ -134,7 +138,7 @@ const document = ref<TElement>(structuredClone(BaseElements[0]));
                 <button class="bg-amber-700 text-white px-4 py-2">Add</button>
               </form>
               <div
-                v-for="group in groupedVariables"
+                v-for="group in Object.values(groupedVariables)"
                 :key="group.group"
                 class="border-2 border-amber-700 p-2 flex flex-col gap-2"
               >
@@ -147,7 +151,7 @@ const document = ref<TElement>(structuredClone(BaseElements[0]));
                       type="color"
                       v-model="variables[`--${group.group}-${variable.name}`]"
                     />
-                    <InputSize
+                    <InputUnit
                       v-else
                       v-model="variables[`--${group.group}-${variable.name}`]"
                     />

@@ -3,6 +3,8 @@ import { ref, watch } from "vue";
 import type { TElement } from "@/types";
 import { useGeneralStore } from "@/stores/general";
 import { storeToRefs } from "pinia";
+import InputUnit from "@/components/InputUnit.vue";
+import ConfigLabel from "@/components/ConfigLabel.vue";
 
 const emit = defineEmits<{
   (e: "update", element: TElement): void;
@@ -128,222 +130,115 @@ const handleRemoveProp = (prop: string) => {
         />
       </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Height</label>
-        <input
-          v-model="selectedElement.styles.height"
-          type="text"
-          placeholder="ej: 100px"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        />
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Minimum height</label>
-        <input
-          v-model="selectedElement.styles.minHeight"
-          type="text"
-          placeholder="ej: 100px"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        />
-      </div>
+      <ConfigLabel label="Height">
+        <InputUnit v-model="selectedElement.styles.height" property-type="height" />
+      </ConfigLabel>
+      <ConfigLabel label="Minimum height">
+        <InputUnit v-model="selectedElement.styles.minHeight" property-type="height" />
+      </ConfigLabel>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Width</label>
-        <input
-          v-model="selectedElement.styles.width"
-          type="text"
-          placeholder="ej: 100px"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        />
-      </div>
+      <ConfigLabel label="Width">
+        <InputUnit v-model="selectedElement.styles.width" property-type="width" />
+      </ConfigLabel>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Minimum width</label>
-        <input
-          v-model="selectedElement.styles.minWidth"
-          type="text"
-          placeholder="ej: 100px"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        />
-      </div>
+      <ConfigLabel label="Minimum width">
+        <InputUnit v-model="selectedElement.styles.minWidth" property-type="width" />
+      </ConfigLabel>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Padding</label>
-        <input
-          v-model="selectedElement.styles.padding"
-          type="text"
-          placeholder="ej: 1rem"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        />
-      </div>
+      <ConfigLabel label="Padding">
+        <InputUnit v-model="selectedElement.styles.padding" property-type="padding" />
+      </ConfigLabel>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Margen</label>
-        <input
-          v-model="selectedElement.styles.margin"
-          type="text"
-          placeholder="ej: 1rem"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        />
-      </div>
+      <ConfigLabel label="Margin">
+        <InputUnit v-model="selectedElement.styles.margin" property-type="margin" />
+      </ConfigLabel>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Tamaño de fuente</label>
-        <input
-          v-model="selectedElement.styles.fontSize"
-          type="text"
-          placeholder="ej: 1.5rem"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        />
-      </div>
+      <ConfigLabel label="Font size">
+        <InputUnit v-model="selectedElement.styles.fontSize" property-type="fontSize" />
+      </ConfigLabel>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Peso de fuente</label>
-        <select
+      <ConfigLabel label="Font weight">
+        <InputUnit
           v-model="selectedElement.styles.fontWeight"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        >
-          <option value="">Normal</option>
-          <option value="bold">Bold</option>
-          <option value="lighter">Lighter</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Borde redondeado</label>
-        <input
-          v-model="selectedElement.styles.borderRadius"
-          type="text"
-          placeholder="ej: 0.5rem"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          property-type="fontWeight"
         />
-      </div>
+      </ConfigLabel>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Alineación</label>
-        <select
-          v-model="selectedElement.styles.textAlign"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        >
-          <option value="left">Izquierda</option>
-          <option value="center">Centro</option>
-          <option value="right">Derecha</option>
-        </select>
-      </div>
+      <ConfigLabel label="Border radius">
+        <InputUnit
+          v-model="selectedElement.styles.borderRadius"
+          property-type="borderRadius"
+        />
+      </ConfigLabel>
+
+      <ConfigLabel label="Text align">
+        <InputUnit v-model="selectedElement.styles.textAlign" property-type="textAlign" />
+      </ConfigLabel>
 
       <!-- Flex/grid -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700">Display</label>
-        <select
-          v-model="selectedElement.styles.display"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        >
-          <option value="flex">Flex</option>
-          <option value="grid">Grid</option>
-          <option value="block">Block</option>
-          <option value="inline">Inline</option>
-          <option value="inline-block">Inline block</option>
-          <option value="none">None</option>
-        </select>
-      </div>
+      <ConfigLabel label="Display">
+        <InputUnit v-model="selectedElement.styles.display" property-type="display" />
+      </ConfigLabel>
 
-      <!-- if flex -->
-      <div v-if="selectedElement.styles.display === 'flex'">
-        <label class="block text-sm font-medium text-gray-700">Flex direction</label>
-        <select
+      <ConfigLabel
+        v-if="selectedElement.styles.display === 'flex'"
+        label="Flex direction"
+      >
+        <InputUnit
           v-model="selectedElement.styles.flexDirection"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        >
-          <option value="row">Row</option>
-          <option value="column">Column</option>
-        </select>
-      </div>
-
-      <div v-if="['flex', 'grid'].includes(selectedElement.styles.display || '')">
-        <label class="block text-sm font-medium text-gray-700">Gap</label>
-        <input
-          v-model="selectedElement.styles.gap"
-          type="text"
-          placeholder="ej: 1rem"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          property-type="flexDirection"
         />
-      </div>
+      </ConfigLabel>
 
-      <div v-if="selectedElement.styles.display === 'flex'">
-        <label class="block text-sm font-medium text-gray-700">Flex wrap</label>
-        <select
-          v-model="selectedElement.styles.flexWrap"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        >
-          <option value="wrap">Wrap</option>
-          <option value="nowrap">No wrap</option>
-        </select>
-      </div>
+      <ConfigLabel
+        v-if="['flex', 'grid'].includes(selectedElement.styles.display || '')"
+        label="Gap"
+      >
+        <InputUnit v-model="selectedElement.styles.gap" property-type="gap" />
+      </ConfigLabel>
 
-      <!-- justify and align -->
-      <div v-if="selectedElement.styles.display === 'flex'">
-        <label class="block text-sm font-medium text-gray-700">Justify content</label>
-        <select
+      <ConfigLabel v-if="selectedElement.styles.display === 'flex'" label="Flex wrap">
+        <InputUnit v-model="selectedElement.styles.flexWrap" property-type="flexWrap" />
+      </ConfigLabel>
+
+      <ConfigLabel
+        v-if="selectedElement.styles.display === 'flex'"
+        label="Justify content"
+      >
+        <InputUnit
           v-model="selectedElement.styles.justifyContent"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        >
-          <option value="flex-start">Flex start</option>
-          <option value="flex-end">Flex end</option>
-          <option value="center">Center</option>
-          <option value="space-between">Space between</option>
-          <option value="space-around">Space around</option>
-        </select>
-      </div>
+          property-type="justifyContent"
+        />
+      </ConfigLabel>
 
-      <div v-if="selectedElement.styles.display === 'flex'">
-        <label class="block text-sm font-medium text-gray-700">Align items</label>
-        <select
+      <ConfigLabel v-if="selectedElement.styles.display === 'flex'" label="Align items">
+        <InputUnit
           v-model="selectedElement.styles.alignItems"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        >
-          <option value="flex-start">Flex start</option>
-          <option value="flex-end">Flex end</option>
-          <option value="center">Center</option>
-        </select>
-      </div>
+          property-type="alignItems"
+        />
+      </ConfigLabel>
 
       <!-- if grid -->
-      <div v-if="selectedElement.styles.display === 'grid'">
-        <label class="block text-sm font-medium text-gray-700"
-          >Grid template columns</label
-        >
-        <select
+      <ConfigLabel
+        v-if="selectedElement.styles.display === 'grid'"
+        label="Grid template columns"
+      >
+        <InputUnit
           v-model="selectedElement.styles.gridTemplateColumns"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        >
-          <option value="repeat(1, 1fr)">1 column</option>
-          <option value="repeat(2, 1fr)">2 columns</option>
-          <option value="repeat(3, 1fr)">3 columns</option>
-          <option value="repeat(4, 1fr)">4 columns</option>
-          <option value="repeat(5, 1fr)">5 columns</option>
-          <option value="repeat(6, 1fr)">6 columns</option>
-          <option value="repeat(7, 1fr)">7 columns</option>
-          <option value="repeat(8, 1fr)">8 columns</option>
-        </select>
-      </div>
+          property-type="gridTemplateColumns"
+        />
+      </ConfigLabel>
 
       <!-- if grid -->
-      <div v-if="selectedElement.styles.display === 'grid'">
-        <label class="block text-sm font-medium text-gray-700">Grid template rows</label>
-        <select
+      <ConfigLabel
+        v-if="selectedElement.styles.display === 'grid'"
+        label="Grid template rows"
+      >
+        <InputUnit
           v-model="selectedElement.styles.gridTemplateRows"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        >
-          <option value="repeat(1, 1fr)">1 row</option>
-          <option value="repeat(2, 1fr)">2 rows</option>
-          <option value="repeat(3, 1fr)">3 rows</option>
-          <option value="repeat(4, 1fr)">4 rows</option>
-          <option value="repeat(5, 1fr)">5 rows</option>
-          <option value="repeat(6, 1fr)">6 rows</option>
-          <option value="repeat(7, 1fr)">7 rows</option>
-          <option value="repeat(8, 1fr)">8 rows</option>
-        </select>
-      </div>
+          property-type="gridTemplateRows"
+        />
+      </ConfigLabel>
     </div>
   </div>
 </template>

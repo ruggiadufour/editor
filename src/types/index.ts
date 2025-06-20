@@ -59,7 +59,12 @@ interface TElementHeading extends TElementExtended {
   }
 }
 
-type TElement = TElementLink | TElementButton | TElementImage | TElementHeading | TElementGeneric
+export type TElement =
+  | TElementLink
+  | TElementButton
+  | TElementImage
+  | TElementHeading
+  | TElementGeneric
 
 export interface TElementComponent {
   id: number
@@ -67,4 +72,11 @@ export interface TElementComponent {
   props: Record<string, any>
 }
 
-export type { TElement }
+export type TTabs = 'elements' | 'blocks' | 'components' | 'variables'
+export type TVariableGroup = 'colors' | 'spacing' | 'radius' | 'breakpoints'
+export type TVariable = Record<`--${TVariableGroup}-${string}`, string>
+export type TVariableForm = {
+  group: TVariableGroup
+  name: string
+  value: string
+}

@@ -18,7 +18,8 @@ textarea {
   outline: none;
   border-radius: 0;
   height: 2rem;
-  padding: 0.5rem 1rem;
+  padding: 0.25rem 0.375rem;
+  border-radius: 0.25rem;
 }
 
 input:disabled,
@@ -26,6 +27,15 @@ select:disabled,
 textarea:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+
+input:hover,
+select:hover,
+textarea:hover,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid #ccc;
 }
 
 textarea {
